@@ -54,8 +54,8 @@ def emissions_per_capita(region : RegionCondition) -> float:
 """accepts a GlobeRect, and returns the area in sqaure kilometers"""
 def area(region : GlobeRect) -> float:
     r = 6371
-    dist = math.sqrt((region.west_long + region.east_long)**2)*111
-    return 2*pi*r*math.sqrt((region.hi_lat - region.lo_lat)**2)*(dist/360)*(1/1.6)
+    dist = math.sqrt((region.west_long**2 + region.east_long**2))*111
+    return 2*pi*r*math.sqrt((region.hi_lat**2 - region.lo_lat**2))*(dist/360)*(1/1.6)
     
 """accepts a RegionCondition function, and computes the tons of CO2-equivalent per square kilometer for the region"""
 def emissions_per_square_km(region : RegionCondition) -> float:
