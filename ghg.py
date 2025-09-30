@@ -54,30 +54,14 @@ def emissions_per_capita(region : RegionCondition) -> float:
 """accepts a GlobeRect, and returns the area in sqaure kilometers"""
 def area(region : GlobeRect) -> float:
     r = 6371
-    phi1 = math.radians(region.lo_lat)
-    phi2 = math.radians(region.hi_lat)
-    phi_lo, phi_hi = (phi1,phi2) if phi1 <= phi2 else (phi2,phi1)
-    
-    dlon_deg = ((region.east_long - region.west_long + 540) % 360) - 180
-    dlam = abs(math.radians(dlon_deg))
-    
-    return (r**2) * dlam * abs(math.sin(phi_hi) - math.sin(phi_lo)) * 2
-    
-    
-    
-    #phi_1 = region.lo_lat * (pi/180)
-    #phi_2 = region.hi_lat * (pi/180)
-    #delta_1 = (math.sqrt((region.east_long - region.west_long)**2))*(pi/180)
-    #delta_2 = (math.sin(phi_2) - math.sin(phi_1))
-    #surface_area = (r**2)*delta_1*delta_2
-    
-    #return surface_area #In square kilometers.... I think
+    dist = math.sqrt((region.west_long + region.east_long)**2)*111
+    return 2*pi*r*math.sqrt((region.hi_lat - region.lo_lat)**2)*(dist/360)*(1/1.6)
     
 """accepts a RegionCondition function, and computes the tons of CO2-equivalent per square kilometer for the region"""
 def emissions_per_square_km(region : RegionCondition) -> float:
     if(area(region.region.rect) == 0):
         raise ValueError("Area of given region is 0.")
-    return region
+    return (region.ghg_rate/area(region.region.rect))
     
 """accepts a paramater RetionConditions that is a list of type RegionCondition, then returns the name of the RegionCondition with the highest population density"""
 def densest(RegionConditions : list[RegionCondition]) -> str:
@@ -140,8 +124,11 @@ class Tests(unittest.TestCase):
         self.assertAlmostEqual(1.6,emissions_per_capita(Tokyo),delta=0.01)
     
     def test_area(self):
-        self.assertAlmostEqual(60,area(GlobeRect(1,1,1,1)),delta=0.01)
-        self.assertAlmostEqual(520000000,area(GlobeRect(-90,90,0,360)),delta=.01)
+        self.assertAlmostEqual(60,area(GlobeRect(40,41,40,41)),delta=0.01)
+        self.assertAlmostEqual(520000000,area(GlobeRect(-90,90,-180,180)),delta=.01)
+        
+        
+        
         
     def test_densest(self):
         densest_test_list_1 : list[RegionCondition] = [Tokyo,NYC,Pacific,Cal_Poly]
